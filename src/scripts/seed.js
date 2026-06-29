@@ -27,32 +27,34 @@ const baseServices = [
     await Salon.deleteMany({});
     await Salon.insertMany(SALONS.map((s) => ({ ...s, services: baseServices })));
 
-    const adminEmail = 'admin@hedpop.test';
-    const exists = await User.findOne({ email: adminEmail });
-    if (!exists) {
-      await User.create({
+    // Idempotent: always set the password so re-running the seed fixes any
+    // drift if the password hash got out of sync.
+    await User.findOneAndUpdate(
+      { email: 'admin@hedpop.test' },
+      {
         name: 'Admin',
-        email: adminEmail,
+        email: 'admin@hedpop.test',
         passwordHash: await User.hashPassword('admin1234'),
         role: 'admin',
-      });
-      console.log(`Admin user: ${adminEmail} / admin1234`);
-    }
+      },
+      { upsert: true, new: true },
+    );
+    console.log('Admin user: admin@hedpop.test / admin1234');
 
-    const demoEmail = 'demo@hedpop.test';
-    const demoExists = await User.findOne({ email: demoEmail });
-    if (!demoExists) {
-      await User.create({
+    await User.findOneAndUpdate(
+      { email: 'demo@hedpop.test' },
+      {
         name: 'Charles',
-        email: demoEmail,
+        email: 'demo@hedpop.test',
         passwordHash: await User.hashPassword('demo1234'),
         role: 'customer',
         phone: '+44 0987 654321',
         loyaltyPoints: 7890,
         tier: 'Premium Member',
-      });
-      console.log(`Demo customer: ${demoEmail} / demo1234`);
-    }
+      },
+      { upsert: true, new: true },
+    );
+    console.log('Demo customer: demo@hedpop.test / demo1234');
 
     await Promotion.deleteMany({});
     await Promotion.insertMany([

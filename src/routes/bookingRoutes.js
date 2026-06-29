@@ -8,6 +8,7 @@ const createSchema = z.object({
   salon: z.string(),
   serviceId: z.string(),
   serviceName: z.string().optional(),
+  duration: z.string().optional(),
   price: z.number(),
   date: z.string(),
   time: z.string(),
