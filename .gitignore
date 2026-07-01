@@ -4,3 +4,6 @@ node_modules
 *.log
 dist
 coverage
+# Never commit Firebase admin credentials.
+*firebase*adminsdk*.json
+secrets/

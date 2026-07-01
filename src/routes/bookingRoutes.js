@@ -14,6 +14,9 @@ const createSchema = z.object({
   time: z.string(),
 });
 
+// Public — used by the booking-flow time picker before sign-in.
+router.get('/taken', ctrl.takenSlots);
+
 router.use(requireAuth);
 router.get('/', ctrl.list);
 router.post('/', validate(createSchema), ctrl.create);
