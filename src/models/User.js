@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, default: '' },
     address: { type: String, default: '' },
     avatar: { type: String, default: null },
+    gender: { type: String, enum: ['male', 'female'], default: 'male', index: true },
     role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
     loyaltyPoints: { type: Number, default: 0 },
     tier: { type: String, default: 'Member' },

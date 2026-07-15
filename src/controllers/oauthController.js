@@ -36,6 +36,7 @@ exports.googleSignIn = async (req, res) => {
     name: payload.name || payload.email,
     avatar: payload.picture,
     provider: 'google',
+    gender: req.body.gender,
   });
 
   res.json({ user, token: signToken(user) });
@@ -62,6 +63,7 @@ exports.facebookSignIn = async (req, res) => {
       name: profile.name,
       avatar: profile.picture?.data?.url || null,
       provider: 'facebook',
+      gender: req.body.gender,
     });
     res.json({ user, token: signToken(user) });
   } catch {
@@ -70,18 +72,23 @@ exports.facebookSignIn = async (req, res) => {
 };
 
 // Find or create a user by email; flag the auth provider for analytics later.
-async function upsertOAuthUser({ email, name, avatar, provider }) {
+async function upsertOAuthUser({ email, name, avatar, provider, gender }) {
+  const validGender = gender === 'male' || gender === 'female' ? gender : undefined;
   let user = await User.findOne({ email });
   if (user) {
-    // Refresh display info if it changed at the provider.
     if (!user.avatar && avatar) user.avatar = avatar;
     if (!user.name) user.name = name;
     await user.save();
     return user;
   }
-  // OAuth users have no local password — store a random hash so the schema's
-  // `required` validation passes; they'll always log in via OAuth.
   const passwordHash = await User.hashPassword(provider + ':' + Date.now() + Math.random());
-  user = await User.create({ email, name, avatar, passwordHash, role: 'customer' });
+  user = await User.create({
+    email,
+    name,
+    avatar,
+    passwordHash,
+    role: 'customer',
+    gender: validGender || 'male',
+  });
   return user;
 }

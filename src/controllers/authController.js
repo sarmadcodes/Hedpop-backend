@@ -2,12 +2,12 @@ const User = require('../models/User');
 const { signToken } = require('../utils/jwt');
 
 exports.register = async (req, res) => {
-  const { name, email, password, phone, address } = req.body;
+  const { name, email, password, phone, address, gender } = req.body;
   const exists = await User.findOne({ email });
   if (exists) return res.status(409).json({ message: 'Email already in use' });
 
   const passwordHash = await User.hashPassword(password);
-  const user = await User.create({ name, email, passwordHash, phone, address });
+  const user = await User.create({ name, email, passwordHash, phone, address, gender });
   const token = signToken(user);
   res.status(201).json({ user, token });
 };

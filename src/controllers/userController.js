@@ -7,7 +7,7 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-  const allowed = ['name', 'phone', 'address', 'avatar', 'settings'];
+  const allowed = ['name', 'phone', 'address', 'avatar', 'settings', 'gender'];
   const patch = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
   const user = await User.findByIdAndUpdate(req.user.id, patch, { new: true });
   res.json(user);
