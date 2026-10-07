@@ -10,6 +10,11 @@ const routes = require('./routes');
 
 const app = express();
 
+// The API sits behind one nginx reverse proxy. Without this every request looks
+// like it comes from 127.0.0.1, so the rate limiter below becomes a single
+// bucket shared by ALL users (and logs ERR_ERL_UNEXPECTED_X_FORWARDED_FOR).
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
 app.use(express.json({ limit: '1mb' }));

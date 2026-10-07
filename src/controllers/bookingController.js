@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Salon = require('../models/Salon');
+const User = require('../models/User');
 const { emitBookingCreated, emitBookingCancelled } = require('../services/socket');
 
 const makeRef = () =>
@@ -37,6 +38,12 @@ exports.takenSlots = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
+  // Tokens are stateless, so one issued before the account was deleted (e.g. on
+  // a second device) is still valid. Don't let it create bookings for nobody.
+  if (!(await User.exists({ _id: req.user.id }))) {
+    return res.status(401).json({ message: 'This account no longer exists. Please sign in again.' });
+  }
+
   const salon = await Salon.findById(req.body.salon).select('title');
   if (!salon) return res.status(404).json({ message: 'Salon not found' });
 
